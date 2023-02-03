@@ -71,7 +71,11 @@ class penduduk extends Command
             );
             $id_wilayah = DB::getPdo()->lastInsertId() + 2;
 
-            // create keluarga
+            echo '-Dusun ' , $dusun, ' berhasil dibuat', PHP_EOL;
+
+            $jmlh_kk = $kd_wilayah->numberBetween(50,70);
+            for ($k=0; $k < $jmlh_kk; $k++) {
+                // create keluarga
             $fake_keluarga = Faker::create('id_ID');
             $no_kk = $fake_keluarga->unique()->numerify('34##############');
             $nik_kepala = $fake_keluarga->unique()->numerify('351#############');
@@ -127,37 +131,40 @@ class penduduk extends Command
                     'hubung_warga' =>' Telegram'
                 ]
             );
+            echo '- Keluarga ' , $dusun, ' berhasil dibuat', PHP_EOL;
             $jmlh_anggota = $fake_keluarga->numberBetween(2,7);
             for ($j=0; $j < $jmlh_anggota; $j++) {
+                $fake_penduduk = Faker::create('id_ID');
+                $arr_foto = explode('\\',$fake_keluarga->image($dir_penduduk, 640, 880));
                 modelPenduduk::insert(
                     [
-                        'nama' => $fake_keluarga->name,
-                        'nik' => $nik_kepala,
+                        'nama' => $fake_penduduk->name,
+                        'nik' => $fake_penduduk->unique()->numerify('352#############'),
                         'id_kk' =>  $id_kk,
-                        'kk_level' => 1,
-                        'sex' => $fake_keluarga->numberBetween(1,2),
-                        'tempatlahir' => $fake_keluarga->city,
-                        'tanggallahir' => $fake_keluarga->date('Y-m-d', '-18 years'),
-                        'agama_id' => $fake_keluarga->numberBetween(1,7),
-                        'pendidikan_kk_id' => $fake_keluarga->numberBetween(1,10),
-                        'pendidikan_sedang_id' => $fake_keluarga->numberBetween(1,18),
-                        'pekerjaan_id' => $fake_keluarga->numberBetween(1,89),
-                        'status_kawin' => $fake_keluarga->numberBetween(1,2),
+                        'kk_level' =>  $fake_penduduk->numberBetween(2,11),
+                        'sex' => $fake_penduduk->numberBetween(1,2),
+                        'tempatlahir' => $fake_penduduk->city,
+                        'tanggallahir' => $fake_penduduk->date('Y-m-d', '-18 years'),
+                        'agama_id' => $fake_penduduk->numberBetween(1,7),
+                        'pendidikan_kk_id' => $fake_penduduk->numberBetween(1,10),
+                        'pendidikan_sedang_id' => $fake_penduduk->numberBetween(1,18),
+                        'pekerjaan_id' => $fake_penduduk->numberBetween(1,89),
+                        'status_kawin' => $fake_penduduk->numberBetween(1,2),
                         'warganegara_id' => 1,
-                        'ayah_nik' => $fake_keluarga->numerify('35##############'),
-                        'ibu_nik' => $fake_keluarga->numerify('35##############'),
-                        'nama_ayah' => $fake_keluarga->name('male'),
-                        'nama_ibu' => $fake_keluarga->name('female'),
+                        'ayah_nik' => $fake_penduduk->numerify('35##############'),
+                        'ibu_nik' => $fake_penduduk->numerify('35##############'),
+                        'nama_ayah' => $fake_penduduk->name('male'),
+                        'nama_ibu' => $fake_penduduk->name('female'),
                         'foto' => end($arr_foto),
-                        'golongan_darah_id' => $fake_keluarga->numberBetween(1,13),
+                        'golongan_darah_id' => $fake_penduduk->numberBetween(1,13),
                         'id_cluster' => $id_wilayah,
                         'status' => 1,
-                        'alamat_sebelumnya' => $fake_keluarga->address,
+                        'alamat_sebelumnya' => $fake_penduduk->address,
                         'alamat_sekarang' => $alamat,
                         'status_dasar' => 1,
                         'cacat_id' => 7,
                         'sakit_menahun_id' => 14,
-                        'akta_lahir' => $fake_keluarga->numerify('######/SKK/R.S.U.S/IV/####'),
+                        'akta_lahir' => $fake_penduduk->numerify('######/SKK/R.S.U.S/IV/####'),
                         'ktp_el' => 2,
                         'status_rekam' => 8,
                         'created_by' => 1,
@@ -165,6 +172,8 @@ class penduduk extends Command
                     ]
                 );
             }
+            }
+
 
         }
     }
