@@ -36,8 +36,9 @@ class penduduk extends Command
     {
         $kd_wilayah = Faker::create('id_ID');
         $dir_penduduk = 'D:\kerjoan\web\opendesa\premium\desa\upload\user_pict';
+        $create_data = 0;
 
-        for ($i=0; $i < 30; $i++) {
+        for ($i=0; $i < 1000; $i++) {
             $dusun = $kd_wilayah->unique()->streetName;
             $lat = $kd_wilayah->latitude();
             $lng = $kd_wilayah->longitude();
@@ -71,7 +72,7 @@ class penduduk extends Command
             );
             $id_wilayah = DB::getPdo()->lastInsertId() + 2;
 
-            echo '-Dusun ' , $dusun, ' berhasil dibuat', PHP_EOL;
+            echo '- Dusun ' , $dusun, ' berhasil dibuat', PHP_EOL;
 
             $jmlh_kk = $kd_wilayah->numberBetween(50,70);
             for ($k=0; $k < $jmlh_kk; $k++) {
@@ -131,7 +132,8 @@ class penduduk extends Command
                     'hubung_warga' =>' Telegram'
                 ]
             );
-            echo '- Keluarga ' , $dusun, ' berhasil dibuat', PHP_EOL;
+            echo '- Keluarga no ' , $no_kk , ' berhasil dibuat', PHP_EOL;
+            $create_data ++;
             $jmlh_anggota = $fake_keluarga->numberBetween(2,7);
             for ($j=0; $j < $jmlh_anggota; $j++) {
                 $fake_penduduk = Faker::create('id_ID');
@@ -171,10 +173,17 @@ class penduduk extends Command
                         'hubung_warga' =>' Telegram'
                     ]
                 );
-            }
-            }
 
 
+                $create_data ++;
+            }
+            echo '- berhasil membuat ', $jmlh_anggota ,' anggota keluarga ' , PHP_EOL;
+            }
+
+            if ($create_data > 1000000) {
+                echo '- generate data selesai' , PHP_EOL;
+                break;
+              }
         }
     }
 }
