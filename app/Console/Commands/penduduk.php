@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Wilayah;
 use App\Models\Keluarga;
-use App\Models\Penduduk;
+use App\Models\Penduduk as modelPenduduk;
 use Faker\Factory as Faker;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -35,6 +35,9 @@ class penduduk extends Command
     public function handle()
     {
         $kd_wilayah = Faker::create('id_ID');
+        $dir_penduduk = 'D:\kerjoan\web\opendesa\premium\desa\upload\user_pict';
+
+        die();
 
         for ($i=0; $i < 30; $i++) {
             $dusun = $kd_wilayah->unique()->streetName;
@@ -90,7 +93,7 @@ class penduduk extends Command
             );
             $id_kk = DB::getPdo()->lastInsertId();
             // buat penduduk kepala keluarga
-            Penduduk::insert(
+            modelPenduduk::insert(
                 [
                     'nama' => $fake_keluarga->nama,
                     'nik' => $nik_kepala,
@@ -101,7 +104,17 @@ class penduduk extends Command
                     'tanggallahir' => $fake_keluarga->date('Y-m-d', '-18 years'),
                     'agama_id' => $fake_keluarga->numberBetween(1,7),
                     'pendidikan_kk_id' => $fake_keluarga->numberBetween(1,10),
-                    'pendidikan_kk_id' => $fake_keluarga->numberBetween(1,10),
+                    'pendidikan_sedang_id' => $fake_keluarga->numberBetween(1,18),
+                    'pekerjaan_id' => $fake_keluarga->numberBetween(1,89),
+                    'status_kawin' => $fake_keluarga->numberBetween(1,2),
+                    'warganegara_id' => 1,
+                    'ayah_nik' => $fake_keluarga->numerify('35##############'),
+                    'ibu_nik' => $fake_keluarga->numerify('35##############'),
+                    'nama_ayah' => $fake_keluarga->nama('male'),
+                    'nama_ibu' => $fake_keluarga->nama('female'),
+                    'foto' => $fake_keluarga->image($dir_penduduk, 640, 880),
+                    'golongan_darah_id' => $fake_keluarga->numberBetween(1,13),
+                    'id_cluster' => $id_wilayah,
 
                 ]
             );
