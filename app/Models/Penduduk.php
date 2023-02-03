@@ -37,14 +37,13 @@
 
 namespace App\Models;
 
-use App\Traits\Author;
+
 use Carbon\Carbon;
 
 
 
 class Penduduk extends BaseModel
 {
-    use Author;
 
     /**
      * Static data tempat lahir.
@@ -485,12 +484,4 @@ class Penduduk extends BaseModel
         return $tglLahir->diffInYears($tglSekarang);
     }
 
-    public function getAlamatWilayahAttribute()
-    {
-        if (! in_array($this->id_kk, [0, null])) {
-            return $this->keluarga->alamat . ' RT ' . $this->keluarga->wilayah->rt . ' / RW ' . $this->keluarga->wilayah->rw . ' ' . ucwords(setting('sebutan_dusun') . ' ' . $this->keluarga->wilayah->dusun);
-        }
-
-        return $this->alamat_sekarang . ' RT ' . $this->wilayah->rt . ' / RW ' . $this->wilayah->rw . ' ' . ucwords(setting('sebutan_dusun') . ' ' . $this->wilayah->dusun);
-    }
 }

@@ -37,8 +37,6 @@ class penduduk extends Command
         $kd_wilayah = Faker::create('id_ID');
         $dir_penduduk = 'D:\kerjoan\web\opendesa\premium\desa\upload\user_pict';
 
-        die();
-
         for ($i=0; $i < 30; $i++) {
             $dusun = $kd_wilayah->unique()->streetName;
             $lat = $kd_wilayah->latitude();
@@ -93,9 +91,10 @@ class penduduk extends Command
             );
             $id_kk = DB::getPdo()->lastInsertId();
             // buat penduduk kepala keluarga
+            $arr_foto = explode('\\',$fake_keluarga->image($dir_penduduk, 640, 880));
             modelPenduduk::insert(
                 [
-                    'nama' => $fake_keluarga->nama,
+                    'nama' => $fake_keluarga->name,
                     'nik' => $nik_kepala,
                     'id_kk' =>  $id_kk,
                     'kk_level' => 1,
@@ -110,17 +109,61 @@ class penduduk extends Command
                     'warganegara_id' => 1,
                     'ayah_nik' => $fake_keluarga->numerify('35##############'),
                     'ibu_nik' => $fake_keluarga->numerify('35##############'),
-                    'nama_ayah' => $fake_keluarga->nama('male'),
-                    'nama_ibu' => $fake_keluarga->nama('female'),
-                    'foto' => $fake_keluarga->image($dir_penduduk, 640, 880),
+                    'nama_ayah' => $fake_keluarga->name('male'),
+                    'nama_ibu' => $fake_keluarga->name('female'),
+                    'foto' => end($arr_foto),
                     'golongan_darah_id' => $fake_keluarga->numberBetween(1,13),
                     'id_cluster' => $id_wilayah,
-
+                    'status' => 1,
+                    'alamat_sebelumnya' => $fake_keluarga->address,
+                    'alamat_sekarang' => $alamat,
+                    'status_dasar' => 1,
+                    'cacat_id' => 7,
+                    'sakit_menahun_id' => 14,
+                    'akta_lahir' => $fake_keluarga->numerify('######/SKK/R.S.U.S/IV/####'),
+                    'ktp_el' => 2,
+                    'status_rekam' => 8,
+                    'created_by' => 1,
+                    'hubung_warga' =>' Telegram'
                 ]
             );
             $jmlh_anggota = $fake_keluarga->numberBetween(2,7);
             for ($j=0; $j < $jmlh_anggota; $j++) {
-
+                modelPenduduk::insert(
+                    [
+                        'nama' => $fake_keluarga->name,
+                        'nik' => $nik_kepala,
+                        'id_kk' =>  $id_kk,
+                        'kk_level' => 1,
+                        'sex' => $fake_keluarga->numberBetween(1,2),
+                        'tempatlahir' => $fake_keluarga->city,
+                        'tanggallahir' => $fake_keluarga->date('Y-m-d', '-18 years'),
+                        'agama_id' => $fake_keluarga->numberBetween(1,7),
+                        'pendidikan_kk_id' => $fake_keluarga->numberBetween(1,10),
+                        'pendidikan_sedang_id' => $fake_keluarga->numberBetween(1,18),
+                        'pekerjaan_id' => $fake_keluarga->numberBetween(1,89),
+                        'status_kawin' => $fake_keluarga->numberBetween(1,2),
+                        'warganegara_id' => 1,
+                        'ayah_nik' => $fake_keluarga->numerify('35##############'),
+                        'ibu_nik' => $fake_keluarga->numerify('35##############'),
+                        'nama_ayah' => $fake_keluarga->name('male'),
+                        'nama_ibu' => $fake_keluarga->name('female'),
+                        'foto' => end($arr_foto),
+                        'golongan_darah_id' => $fake_keluarga->numberBetween(1,13),
+                        'id_cluster' => $id_wilayah,
+                        'status' => 1,
+                        'alamat_sebelumnya' => $fake_keluarga->address,
+                        'alamat_sekarang' => $alamat,
+                        'status_dasar' => 1,
+                        'cacat_id' => 7,
+                        'sakit_menahun_id' => 14,
+                        'akta_lahir' => $fake_keluarga->numerify('######/SKK/R.S.U.S/IV/####'),
+                        'ktp_el' => 2,
+                        'status_rekam' => 8,
+                        'created_by' => 1,
+                        'hubung_warga' =>' Telegram'
+                    ]
+                );
             }
 
         }
