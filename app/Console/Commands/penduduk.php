@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Wilayah;
 use App\Models\Keluarga;
+use App\Models\Penduduk;
 use Faker\Factory as Faker;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -36,16 +37,79 @@ class penduduk extends Command
         $kd_wilayah = Faker::create('id_ID');
 
         for ($i=0; $i < 30; $i++) {
-            $dusun = $kd_wilayah->streetName;
+            $dusun = $kd_wilayah->unique()->streetName;
             $lat = $kd_wilayah->latitude();
             $lng = $kd_wilayah->longitude();
 
             $wilayah = Wilayah::insert([
                 [
                     'rt' => 0,
-                    'rw'=>
+                    'rw'=> 0,
+                    'dusun' => $dusun,
+                    'lat' => $lat,
+                    'lng' => $lng,
+                    'urut_cetak' =>($i *3)
+                ],
+                [
+                    'rt' => 0,
+                    'rw'=> '-',
+                    'dusun' => $dusun,
+                    'lat' => $lat,
+                    'lng' => $lng,
+                    'urut_cetak' =>($i *3) +1
+                ],
+                [
+                    'rt' => '-',
+                    'rw'=> '-',
+                    'dusun' => $dusun,
+                    'lat' => $lat,
+                    'lng' => $lng,
+                    'urut_cetak' =>($i *3) + 2
                 ]
-            ])
+                ]
+            );
+            $id_wilayah = DB::getPdo()->lastInsertId() + 2;
+
+            // create keluarga
+            $fake_keluarga = Faker::create('id_ID');
+            $no_kk = $fake_keluarga->unique()->numerify('34##############');
+            $nik_kepala = $fake_keluarga->unique()->numerify('351#############');
+            $tgl_daftar = $fake_keluarga->date('Y-m-d', '-8 years');
+            $alamat = $fake_keluarga->address;
+
+            $keluarga = Keluarga::insert(
+                [
+                    'no_kk' => $no_kk,
+                    'nik_kepala' => $nik_kepala,
+                    'tgl_daftar' => $tgl_daftar,
+                    'alamat' => $alamat,
+                    'id_cluster' => $id_wilayah,
+                    'updated_by' => 1
+                ]
+
+            );
+            $id_kk = DB::getPdo()->lastInsertId();
+            // buat penduduk kepala keluarga
+            Penduduk::insert(
+                [
+                    'nama' => $fake_keluarga->nama,
+                    'nik' => $nik_kepala,
+                    'id_kk' =>  $id_kk,
+                    'kk_level' => 1,
+                    'sex' => $fake_keluarga->numberBetween(1,2),
+                    'tempatlahir' => $fake_keluarga->city,
+                    'tanggallahir' => $fake_keluarga->date('Y-m-d', '-18 years'),
+                    'agama_id' => $fake_keluarga->numberBetween(1,7),
+                    'pendidikan_kk_id' => $fake_keluarga->numberBetween(1,10),
+                    'pendidikan_kk_id' => $fake_keluarga->numberBetween(1,10),
+
+                ]
+            );
+            $jmlh_anggota = $fake_keluarga->numberBetween(2,7);
+            for ($j=0; $j < $jmlh_anggota; $j++) {
+
+            }
+
         }
     }
 }
