@@ -4,12 +4,12 @@ namespace App\Console\Commands;
 
 use App\Models\Wilayah;
 use App\Models\Keluarga;
-use App\Models\Penduduk as modelPenduduk;
+use App\Models\LogPenduduk;
 use Faker\Factory as Faker;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-
-
+use App\Models\Penduduk as modelPenduduk;
+use Exception;
 
 class penduduk extends Command
 {
@@ -74,13 +74,14 @@ class penduduk extends Command
 
             echo '- Dusun ' , $dusun, ' berhasil dibuat', PHP_EOL;
 
-            $jmlh_kk = $kd_wilayah->numberBetween(50,70);
+            $jmlh_kk = $kd_wilayah->numberBetween(100,200);
             for ($k=0; $k < $jmlh_kk; $k++) {
                 // create keluarga
             $fake_keluarga = Faker::create('id_ID');
             $no_kk = $fake_keluarga->unique()->numerify('34##############');
             $nik_kepala = $fake_keluarga->unique()->numerify('351#############');
             $tgl_daftar = $fake_keluarga->date('Y-m-d', '-8 years');
+            $tgl_daftar = ($tgl_daftar == '1970-01-01') ? '1980-01-15' : $tgl_daftar;
             $alamat = $fake_keluarga->address;
 
             $keluarga = Keluarga::insert(
@@ -97,6 +98,8 @@ class penduduk extends Command
             $id_kk = DB::getPdo()->lastInsertId();
             // buat penduduk kepala keluarga
             $arr_foto = explode('\\',$fake_keluarga->image($dir_penduduk, 640, 880));
+            $tanggal_lahir = $fake_keluarga->date('Y-m-d', '-18 years');
+            $tanggal_lahir = ($tanggal_lahir == '1970-01-01') ? '1980-01-15' : $tanggal_lahir;
             modelPenduduk::insert(
                 [
                     'nama' => $fake_keluarga->name,
@@ -105,7 +108,7 @@ class penduduk extends Command
                     'kk_level' => 1,
                     'sex' => $fake_keluarga->numberBetween(1,2),
                     'tempatlahir' => $fake_keluarga->city,
-                    'tanggallahir' => $fake_keluarga->date('Y-m-d', '-18 years'),
+                    'tanggallahir' => $tanggal_lahir,
                     'agama_id' => $fake_keluarga->numberBetween(1,7),
                     'pendidikan_kk_id' => $fake_keluarga->numberBetween(1,10),
                     'pendidikan_sedang_id' => $fake_keluarga->numberBetween(1,18),
@@ -132,12 +135,32 @@ class penduduk extends Command
                     'hubung_warga' =>' Telegram'
                 ]
             );
+            $id_penduduk= DB::getPdo()->lastInsertId();
+            $tgl_lapor =$fake_keluarga->date('Y-m-d');
+            $tgl_lapor = ($tgl_lapor == '1970-01-01') ? '1980-01-15' : $tgl_lapor;
+            LogPenduduk::insert(
+                [
+                    'id_pend' =>$id_penduduk,
+                    'kode_peristiwa' => 1,
+                    'tgl_lapor' =>  $tgl_lapor,
+                ]
+            );
+            $kk = Keluarga::find($id_kk);
+            $kk->nik_kepala =  $id_penduduk;
+            $kk->save();
             echo '- Keluarga no ' , $no_kk , ' berhasil dibuat', PHP_EOL;
             $create_data ++;
             $jmlh_anggota = $fake_keluarga->numberBetween(2,7);
             for ($j=0; $j < $jmlh_anggota; $j++) {
                 $fake_penduduk = Faker::create('id_ID');
-                $arr_foto = explode('\\',$fake_keluarga->image($dir_penduduk, 640, 880));
+                $arr_foto = [];
+                try {
+                    $arr_foto = explode('\\',$fake_keluarga->image($dir_penduduk, 640, 880));
+                } catch (Exception) {
+                    $arr_foto = null;
+                }
+                $tanggal_lahir = $fake_keluarga->date('Y-m-d', '-18 years');
+                $tanggal_lahir = ($tanggal_lahir == '1970-01-01') ? '1980-01-15' : $tanggal_lahir;
                 modelPenduduk::insert(
                     [
                         'nama' => $fake_penduduk->name,
@@ -146,7 +169,7 @@ class penduduk extends Command
                         'kk_level' =>  $fake_penduduk->numberBetween(2,11),
                         'sex' => $fake_penduduk->numberBetween(1,2),
                         'tempatlahir' => $fake_penduduk->city,
-                        'tanggallahir' => $fake_penduduk->date('Y-m-d', '-18 years'),
+                        'tanggallahir' => $tanggal_lahir,
                         'agama_id' => $fake_penduduk->numberBetween(1,7),
                         'pendidikan_kk_id' => $fake_penduduk->numberBetween(1,10),
                         'pendidikan_sedang_id' => $fake_penduduk->numberBetween(1,18),
@@ -157,7 +180,7 @@ class penduduk extends Command
                         'ibu_nik' => $fake_penduduk->numerify('35##############'),
                         'nama_ayah' => $fake_penduduk->name('male'),
                         'nama_ibu' => $fake_penduduk->name('female'),
-                        'foto' => end($arr_foto),
+                        'foto' => ($arr_foto == null)? '': end($arr_foto),
                         'golongan_darah_id' => $fake_penduduk->numberBetween(1,13),
                         'id_cluster' => $id_wilayah,
                         'status' => 1,
@@ -171,6 +194,16 @@ class penduduk extends Command
                         'status_rekam' => 8,
                         'created_by' => 1,
                         'hubung_warga' =>' Telegram'
+                    ]
+                );
+                $id_penduduk= DB::getPdo()->lastInsertId();
+                $tgl_lapor =$fake_keluarga->date('Y-m-d');
+                $tgl_lapor = ($tgl_lapor == '1970-01-01') ? '1980-01-15' : $tgl_lapor;
+                LogPenduduk::insert(
+                    [
+                        'id_pend' =>$id_penduduk,
+                        'kode_peristiwa' => 1,
+                        'tgl_lapor' =>  $tgl_lapor,
                     ]
                 );
 
