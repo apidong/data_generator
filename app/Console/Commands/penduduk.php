@@ -97,7 +97,7 @@ class penduduk extends Command
             );
             $id_kk = DB::getPdo()->lastInsertId();
             // buat penduduk kepala keluarga
-            $arr_foto = explode('\\',$fake_keluarga->image($dir_penduduk, 640, 880));
+            // $arr_foto = explode('\\',$fake_keluarga->image($dir_penduduk, 640, 880));
             $tanggal_lahir = $fake_keluarga->date('Y-m-d', '-18 years');
             $tanggal_lahir = ($tanggal_lahir == '1970-01-01') ? '1980-01-15' : $tanggal_lahir;
             modelPenduduk::insert(
@@ -119,7 +119,7 @@ class penduduk extends Command
                     'ibu_nik' => $fake_keluarga->numerify('35##############'),
                     'nama_ayah' => $fake_keluarga->name('male'),
                     'nama_ibu' => $fake_keluarga->name('female'),
-                    'foto' => end($arr_foto),
+                    'foto' => ($arr_foto == null)? '': end($arr_foto),
                     'golongan_darah_id' => $fake_keluarga->numberBetween(1,13),
                     'id_cluster' => $id_wilayah,
                     'status' => 1,
@@ -136,7 +136,7 @@ class penduduk extends Command
                 ]
             );
             $id_penduduk= DB::getPdo()->lastInsertId();
-            $tgl_lapor =$fake_keluarga->date('Y-m-d');
+            $tgl_lapor = $fake_keluarga->date('Y-m-d');
             $tgl_lapor = ($tgl_lapor == '1970-01-01') ? '1980-01-15' : $tgl_lapor;
             LogPenduduk::insert(
                 [
