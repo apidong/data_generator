@@ -37,13 +37,11 @@
 
 namespace App\Models;
 
-use App\Traits\Author;
-
-
+// use App\Traits\Author;
 
 class Config extends BaseModel
 {
-    use Author;
+    // use Author;
 
     /**
      * The table associated with the model.
@@ -129,9 +127,9 @@ class Config extends BaseModel
      */
     public function getPathLogoAttribute()
     {
-        $logo = LOKASI_LOGO_DESA . $this->attributes['logo'];
+        $logo = base_path('/desa/logo/' . $this->attributes['logo']);
 
-        if (empty($this->attributes['logo']) || ! file_exists(FCPATH . $logo)) {
+        if (empty($this->attributes['logo']) || !file_exists(base_path($logo))) {
             return 'assets/files/logo/opensid_logo.png';
         }
 
@@ -145,9 +143,9 @@ class Config extends BaseModel
      */
     public function getPathKantorDesaAttribute()
     {
-        $kantor_desa = LOKASI_LOGO_DESA . $this->attributes['kantor_desa'];
+        $kantor_desa = base_path('/desa/logo/' . $this->attributes['kantor_desa']);
 
-        if (empty($this->attributes['kantor_desa']) || ! file_exists(FCPATH . $kantor_desa)) {
+        if (empty($this->attributes['kantor_desa']) || !file_exists(base_path($kantor_desa))) {
             return 'assets/files/logo/opensid_kantor.jpg';
         }
 
