@@ -70,6 +70,8 @@ class FakerPenduduk extends Command
      */
     public function handle()
     {
+        set_time_limit(0);
+
         $retry = (int) $this->option('retry');
         $retry = ($retry < 10) ? $retry : 10;
 
